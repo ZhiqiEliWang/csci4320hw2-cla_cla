@@ -23,29 +23,29 @@
 /***********************************************************************************************************/
 // ADAPT AS CUDA managedMalloc memory - e.g., change to pointers and allocate in main function. 
 /***********************************************************************************************************/
-int gi[bits] = {0};
-int pi[bits] = {0};
-int ci[bits] = {0};
+int *gi;
+int *pi[bits];
+int *ci[bits];
 
-int ggj[ngroups] = {0};
-int gpj[ngroups] = {0};
-int gcj[ngroups] = {0};
+int *ggj;
+int *gpj;
+int *gcj;
 
-int sgk[nsections] = {0};
-int spk[nsections] = {0};
-int sck[nsections] = {0};
+int *sgk;
+int *spk;
+int *sck;
 
-int ssgl[nsupersections] = {0} ;
-int sspl[nsupersections] = {0} ;
-int sscl[nsupersections] = {0} ;
+int *ssgl;
+int *sspl;
+int *sscl;
 
-int sssgm[nsupersupersections] = {0} ;
-int ssspm[nsupersupersections] = {0} ;
-int ssscm[nsupersupersections] = {0} ;
+int *sssgm;
+int *ssspm;
+int *ssscm;
 
-int sumi[bits] = {0};
+int *sumi;
 
-int sumrca[bits] = {0};
+int *sumrca;
 
 //Integer array of inputs in binary form
 int* bin1=NULL;
@@ -57,8 +57,8 @@ char* hex2=NULL;
 
 void read_input()
 {
-  char* in1 = (char *)calloc(input_size+1, sizeof(char));
-  char* in2 = (char *)calloc(input_size+1, sizeof(char));
+  char* in1; cudaMallocManaged(&in1, (input_size+1)*sizeof(char));
+  char* in2; cudaMallocManaged(&in2, (input_size+1)*sizeof(char));
 
   if( 1 != scanf("%s", in1))
     {
@@ -74,18 +74,19 @@ void read_input()
   hex1 = grab_slice_char(in1,0,input_size+1);
   hex2 = grab_slice_char(in2,0,input_size+1);
   
-  free(in1);
-  free(in2);
+  cudaFree(in1);
+  cudaFree(in2);
 }
 
 /***********************************************************************************************************/
 // ADAPT AS CUDA KERNEL 
 /***********************************************************************************************************/
 
+__global__
 void compute_gp()
 {
-    for(int i = 0; i < bits; i++)
-    {
+    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    if (i < bits) { //avoid accessing beyond the end of the arrays
         gi[i] = bin1[i] & bin2[i];
         pi[i] = bin1[i] | bin2[i];
     }
@@ -95,6 +96,7 @@ void compute_gp()
 // ADAPT AS CUDA KERNEL 
 /***********************************************************************************************************/
 
+__global__
 void compute_group_gp()
 {
     for(int j = 0; j < ngroups; j++)
@@ -379,7 +381,10 @@ void cla()
   // NOTE: Make sure you set the right CUDA Block Size (e.g., threads per block) for different runs per 
   //       assignment description.
   /***********************************************************************************************************/
-    compute_gp();
+    int gpNumBlock = (bits + block_size - 1) / block_size;
+    compute_gp<<<gpNumBlock, block_size>>>();
+    cudaDeviceSynchronize();
+
     compute_group_gp();
     compute_section_gp();
     compute_super_section_gp();
@@ -434,6 +439,34 @@ int main(int argc, char *argv[])
   char* int2str_result=NULL;
   unsigned long long start_time=clock_now(); // dummy clock reads to init
   unsigned long long end_time=clock_now();   // dummy clock reads to init
+
+  // ----------------- BEGIN: cudaMallocManaged -----------------
+
+    cudaMallocManaged(gi, 1 * sizeof(int));
+    cudaMallocManaged(pi, bits * sizeof(int));
+    cudaMallocManaged(ci, bits * sizeof(int));
+
+    cudaMallocManaged(ggj, ngroups * sizeof(int));
+    cudaMallocManaged(gpj, ngroups * sizeof(int));
+    cudaMallocManaged(gcj, ngroups * sizeof(int));
+
+    cudaMallocManaged(sgk, nsections * sizeof(int));
+    cudaMallocManaged(spk, nsections * sizeof(int));
+    cudaMallocManaged(sck, nsections * sizeof(int));
+
+    cudaMallocManaged(ssgl, nsupersections * sizeof(int));
+    cudaMallocManaged(sspl, nsupersections * sizeof(int));
+    cudaMallocManaged(sscl, nsupersections * sizeof(int));
+
+    cudaMallocManaged(sssgm, nsupersupersections * sizeof(int));
+    cudaMallocManaged(ssspm, nsupersupersections * sizeof(int));
+    cudaMallocManaged(ssscm, nsupersupersections * sizeof(int));
+
+    cudaMallocManaged(sumi, bits * sizeof(int));
+    cudaMallocManaged(sumrca, bits * sizeof(int));
+
+
+  // ----------------- END: cudaMallocManaged -------------------
 
   if( nsupersupersections != block_size )
     {
