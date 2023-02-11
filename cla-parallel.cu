@@ -376,8 +376,8 @@ void cla()
   /***********************************************************************************************************/
     int gpNumBlock = (bits + block_size - 1) / block_size;
     compute_gp<<<gpNumBlock, block_size>>>(gi, pi, bin1, bin2);
-    int ggNumBlock = (ngroups + block_size - 1) / block_size;
-    compute_group_gp<<<ggNumBlock, block_size>>>(ggj, gpj, gi, pi);
+    // int ggNumBlock = (ngroups + block_size - 1) / block_size;
+    // compute_group_gp<<<ggNumBlock, block_size>>>(ggj, gpj, gi, pi);
     // compute_section_gp();
     // compute_super_section_gp();
     // compute_super_super_section_gp();
