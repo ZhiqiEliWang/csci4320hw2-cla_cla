@@ -48,8 +48,8 @@ int *sumi;
 int *sumrca;
 
 //Integer array of inputs in binary form
-int* bin1=NULL;
-int* bin2=NULL;
+int* bin1;
+int* bin2;
 
 //Character array of inputs in hex form
 char* hex1=NULL;
@@ -83,7 +83,7 @@ void read_input()
 /***********************************************************************************************************/
 
 __global__
-void compute_gp()
+void compute_gp(int* gi, int* pi, int* bin1, int* bin2)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     if (i < bits) { //avoid accessing beyond the end of the arrays
@@ -97,27 +97,27 @@ void compute_gp()
 /***********************************************************************************************************/
 
 __global__
-void compute_group_gp() 
+void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj) 
 {
-    int j = threadIdx.x + blockIdx.x * blockDim.x// j is the current group number
+    int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
     int jstart = j * 32; //jstart is the starting index of the group in gi and pi
 
     int sum = 0;
     for(int i = 0; i < block_size; i++)
     {
-        int mult = g[jstart + i]; //grabs the g_i term for the multiplication
+        int mult = gi[jstart + i]; //grabs the g_i term for the multiplication
         for(int ii = block_size-1; ii > i; ii--)
         {
-            mult &= g[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
+            mult &= gi[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
         }
         sum |= mult; //sum up each of these things with an or
     }
     ggj[j] = sum;
 
-    int mult = g[jstart + i];
+    int mult = gi[jstart];
     for(int i = 1; i < block_size; i++)
     {
-        mult &= g[jstart + i];
+        mult &= gi[jstart + i];
     }
     gpj[j] = mult;
 
@@ -375,18 +375,18 @@ void cla()
   //       assignment description.
   /***********************************************************************************************************/
     int gpNumBlock = (bits + block_size - 1) / block_size;
-    compute_gp<<<gpNumBlock, block_size>>>();
+    compute_gp<<<gpNumBlock, block_size>>>(gi, pi, bin1, bin2);
     int ggNumBlock = (ngroups + block_size - 1) / block_size;
-    compute_group_gp<<<ggNumBlock, block_size>>>();
-    compute_section_gp();
-    compute_super_section_gp();
-    compute_super_super_section_gp();
-    compute_super_super_section_carry();
-    compute_super_section_carry();
-    compute_section_carry();
-    compute_group_carry();
-    compute_carry();
-    compute_sum();
+    compute_group_gp<<<ggNumBlock, block_size>>>(ggj, gpj, gi, pi);
+    // compute_section_gp();
+    // compute_super_section_gp();
+    // compute_super_super_section_gp();
+    // compute_super_super_section_carry();
+    // compute_super_section_carry();
+    // compute_section_carry();
+    // compute_group_carry();
+    // compute_carry();
+    // compute_sum();
 
   /***********************************************************************************************************/
   // INSERT RIGHT CUDA SYNCHRONIZATION AT END!
