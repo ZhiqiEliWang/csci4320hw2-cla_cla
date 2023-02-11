@@ -24,8 +24,8 @@
 // ADAPT AS CUDA managedMalloc memory - e.g., change to pointers and allocate in main function. 
 /***********************************************************************************************************/
 int *gi;
-int *pi[bits];
-int *ci[bits];
+int *pi;
+int *ci;
 
 int *ggj;
 int *gpj;
@@ -97,37 +97,30 @@ void compute_gp()
 /***********************************************************************************************************/
 
 __global__
-void compute_group_gp()
+void compute_group_gp() 
 {
-    for(int j = 0; j < ngroups; j++)
+    int j = threadIdx.x + blockIdx.x * blockDim.x// j is the current group number
+    int jstart = j * 32; //jstart is the starting index of the group in gi and pi
+
+    int sum = 0;
+    for(int i = 0; i < block_size; i++)
     {
-        int jstart = j*block_size;
-        int* ggj_group = grab_slice(gi,jstart,block_size);
-        int* gpj_group = grab_slice(pi,jstart,block_size);
-
-        int sum = 0;
-        for(int i = 0; i < block_size; i++)
+        int mult = g[jstart + i]; //grabs the g_i term for the multiplication
+        for(int ii = block_size-1; ii > i; ii--)
         {
-            int mult = ggj_group[i]; //grabs the g_i term for the multiplication
-            for(int ii = block_size-1; ii > i; ii--)
-            {
-                mult &= gpj_group[ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
-            }
-            sum |= mult; //sum up each of these things with an or
+            mult &= g[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
         }
-        ggj[j] = sum;
-
-        int mult = gpj_group[0];
-        for(int i = 1; i < block_size; i++)
-        {
-            mult &= gpj_group[i];
-        }
-        gpj[j] = mult;
-
-	// free from grab_slice allocation
-	free(ggj_group);
-	free(gpj_group);
+        sum |= mult; //sum up each of these things with an or
     }
+    ggj[j] = sum;
+
+    int mult = g[jstart + i];
+    for(int i = 1; i < block_size; i++)
+    {
+        mult &= g[jstart + i];
+    }
+    gpj[j] = mult;
+
 }
 
 /***********************************************************************************************************/
@@ -383,9 +376,8 @@ void cla()
   /***********************************************************************************************************/
     int gpNumBlock = (bits + block_size - 1) / block_size;
     compute_gp<<<gpNumBlock, block_size>>>();
-    cudaDeviceSynchronize();
-
-    compute_group_gp();
+    int ggNumBlock = (ngroups + block_size - 1) / block_size;
+    compute_group_gp<<<ggNumBlock, block_size>>>();
     compute_section_gp();
     compute_super_section_gp();
     compute_super_super_section_gp();
@@ -442,28 +434,31 @@ int main(int argc, char *argv[])
 
   // ----------------- BEGIN: cudaMallocManaged -----------------
 
-    cudaMallocManaged(gi, 1 * sizeof(int));
-    cudaMallocManaged(pi, bits * sizeof(int));
-    cudaMallocManaged(ci, bits * sizeof(int));
+    cudaMallocManaged(&gi, 1 * sizeof(int));
+    cudaMallocManaged(&pi, bits * sizeof(int));
+    cudaMallocManaged(&ci, bits * sizeof(int));
 
-    cudaMallocManaged(ggj, ngroups * sizeof(int));
-    cudaMallocManaged(gpj, ngroups * sizeof(int));
-    cudaMallocManaged(gcj, ngroups * sizeof(int));
+    cudaMallocManaged(&ggj, ngroups * sizeof(int));
+    cudaMallocManaged(&gpj, ngroups * sizeof(int));
+    cudaMallocManaged(&gcj, ngroups * sizeof(int));
 
-    cudaMallocManaged(sgk, nsections * sizeof(int));
-    cudaMallocManaged(spk, nsections * sizeof(int));
-    cudaMallocManaged(sck, nsections * sizeof(int));
+    cudaMallocManaged(&sgk, nsections * sizeof(int));
+    cudaMallocManaged(&spk, nsections * sizeof(int));
+    cudaMallocManaged(&sck, nsections * sizeof(int));
 
-    cudaMallocManaged(ssgl, nsupersections * sizeof(int));
-    cudaMallocManaged(sspl, nsupersections * sizeof(int));
-    cudaMallocManaged(sscl, nsupersections * sizeof(int));
+    cudaMallocManaged(&ssgl, nsupersections * sizeof(int));
+    cudaMallocManaged(&sspl, nsupersections * sizeof(int));
+    cudaMallocManaged(&sscl, nsupersections * sizeof(int));
 
-    cudaMallocManaged(sssgm, nsupersupersections * sizeof(int));
-    cudaMallocManaged(ssspm, nsupersupersections * sizeof(int));
-    cudaMallocManaged(ssscm, nsupersupersections * sizeof(int));
+    cudaMallocManaged(&sssgm, nsupersupersections * sizeof(int));
+    cudaMallocManaged(&ssspm, nsupersupersections * sizeof(int));
+    cudaMallocManaged(&ssscm, nsupersupersections * sizeof(int));
 
-    cudaMallocManaged(sumi, bits * sizeof(int));
-    cudaMallocManaged(sumrca, bits * sizeof(int));
+    cudaMallocManaged(&sumi, bits * sizeof(int));
+    cudaMallocManaged(&sumrca, bits * sizeof(int));
+
+    cudaMallocManaged(&bin1, bits * sizeof(int));
+    cudaMallocManaged(&bin2, bits * sizeof(int));
 
 
   // ----------------- END: cudaMallocManaged -------------------
