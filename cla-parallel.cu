@@ -100,7 +100,7 @@ __global__
 void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj) 
 {
     int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
-    int jstart = j * 32; //jstart is the starting index of the group in gi and pi
+    int jstart = j * block_size; //jstart is the starting index of the group in gi and pi
 
     int sum = 0;
     for(int i = 0; i < block_size; i++)
@@ -129,35 +129,30 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
 
 void compute_section_gp()
 {
-  for(int k = 0; k < nsections; k++)
-    {
-      int kstart = k*block_size;
-      int* sgk_group = grab_slice(ggj,kstart,block_size);
-      int* spk_group = grab_slice(gpj,kstart,block_size);
-      
-      int sum = 0;
-      for(int i = 0; i < block_size; i++)
-        {
-	  int mult = sgk_group[i];
-	  for(int ii = block_size-1; ii > i; ii--)
-            {
-	      mult &= spk_group[ii];
-            }
-	  sum |= mult;
-        }
+
+    int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
+    int kstart = k * block_size; //kstart is the starting index of the section in ggj and gpj
+    
+    int sum = 0;
+    for(int i = 0; i < block_size; i++)
+      {
+          int mult = sgk[kstart + k];
+          for(int ii = block_size-1; ii > i; ii--)
+          {
+              mult &= sgk[kstart + ii];
+          }
+          sum |= mult;
+      }
       sgk[k] = sum;
-      
-      int mult = spk_group[0];
+    
+      int mult = sgk[kstart];
       for(int i = 1; i < block_size; i++)
-        {
-	  mult &= spk_group[i];
-        }
+      {
+          mult &= sgk[kstart + i];
+      }
       spk[k] = mult;
       
-      // free from grab_slice allocation
-      free(sgk_group);
-      free(spk_group);
-    }
+
 }
 
 /***********************************************************************************************************/
@@ -166,35 +161,28 @@ void compute_section_gp()
 
 void compute_super_section_gp()
 {
-  for(int l = 0; l < nsupersections ; l++)
-    {
-      int lstart = l*block_size;
-      int* ssgl_group = grab_slice(sgk,lstart,block_size);
-      int* sspl_group = grab_slice(spk,lstart,block_size);
-      
-      int sum = 0;
-      for(int i = 0; i < block_size; i++)
-        {
-	  int mult = ssgl_group[i];
-	  for(int ii = block_size-1; ii > i; ii--)
-            {
-	      mult &= sspl_group[ii];
-            }
-	  sum |= mult;
-        }
+    int l = threadIdx.x + blockIdx.x * blockDim.x;// l is the current super section number
+    int lstart = l*block_size;
+    
+    int sum = 0;
+    for(int i = 0; i < block_size; i++)
+      {
+          int mult = ssgl[lstart + i];
+          for(int ii = block_size-1; ii > i; ii--)
+          {
+              mult &= ssgl[lstart + ii];
+          }
+          sum |= mult;
+      }
       ssgl[l] = sum;
-      
-      int mult = sspl_group[0];
+    
+      int mult = ssgl[lstart];
       for(int i = 1; i < block_size; i++)
-        {
-	  mult &= sspl_group[i];
-        }
+      {
+          mult &= ssgl[lstart + i];
+      }
       sspl[l] = mult;
       
-      // free from grab_slice allocation
-      free(ssgl_group);
-      free(sspl_group);
-    }
 }
 
 /***********************************************************************************************************/
@@ -203,35 +191,28 @@ void compute_super_section_gp()
 
 void compute_super_super_section_gp()
 {
-  for(int m = 0; m < nsupersupersections ; m++)
-    {
-      int mstart = m*block_size;
-      int* sssgm_group = grab_slice(ssgl,mstart,block_size);
-      int* ssspm_group = grab_slice(sspl,mstart,block_size);
-      
-      int sum = 0;
-      for(int i = 0; i < block_size; i++)
-        {
-	  int mult = sssgm_group[i];
-	  for(int ii = block_size-1; ii > i; ii--)
-            {
-	      mult &= ssspm_group[ii];
-            }
-	  sum |= mult;
-        }
+    int m = threadIdx.x + blockIdx.x * blockDim.x;// m is the current super super section number
+    int mstart = m*block_size;
+    
+    int sum = 0;
+    for(int i = 0; i < block_size; i++)
+      {
+          int mult = sssgm[mstart + i];
+          for(int ii = block_size-1; ii > i; ii--)
+          {
+              mult &= sssgm[mstart + ii];
+          }
+          sum |= mult;
+      }
       sssgm[m] = sum;
-      
-      int mult = ssspm_group[0];
+    
+      int mult = sssgm[mstart];
       for(int i = 1; i < block_size; i++)
-        {
-	  mult &= ssspm_group[i];
-        }
+      {
+          mult &= sssgm[mstart + i];
+      }
       ssspm[m] = mult;
       
-      // free from grab_slice allocation
-      free(sssgm_group);
-      free(ssspm_group);
-    }
 }
 
 /***********************************************************************************************************/
