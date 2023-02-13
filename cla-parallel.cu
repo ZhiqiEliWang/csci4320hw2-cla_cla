@@ -241,7 +241,7 @@ void compute_super_super_section_carry(int *ssscm, int *sssgm, int *ssspm) // Th
 // ADAPT AS CUDA KERNEL 
 /***********************************************************************************************************/
 __global__
-void compute_super_section_carry(int *sscm, int *ssgl, int *sspl, int *ssscm) 
+void compute_super_section_carry(int *sscl, int *ssgl, int *sspl, int *ssscm) 
 {
   int l = threadIdx.x + blockIdx.x * blockDim.x;// l is the current super section number
   int sscllast=0;
@@ -251,10 +251,10 @@ void compute_super_section_carry(int *sscm, int *ssgl, int *sspl, int *ssscm)
     }
   else if( l != 0 )
     {
-      sscllast = sscm[l-1];
+      sscllast = sscl[l-1];
     }
   
-  sscm[l] = ssgl[l] | (sspl[l]&sscllast);
+  sscl[l] = ssgl[l] | (sspl[l]&sscllast);
 
 }
 
@@ -262,7 +262,7 @@ void compute_super_section_carry(int *sscm, int *ssgl, int *sspl, int *ssscm)
 // ADAPT AS CUDA KERNEL 
 /***********************************************************************************************************/
 __global__
-void compute_section_carry(int *sck, int *sgk, int *spk, int *sscm)
+void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
 {
   int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
   int scklast=0;
@@ -363,7 +363,7 @@ void cla()
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
-    compute_super_section_carry<<<ssNumBlock, block_size>>>(sscm, ssgl, sspl, ssscm);
+    compute_super_section_carry<<<ssNumBlock, block_size>>>(sscl, ssgl, sspl, ssscm);
     compute_section_carry<<<scNumBlock, block_size>>>(sck, sgk, spk, sscm);
     compute_group_carry<<<ggNumBlock, block_size>>>(gcj, ggj, gpj, sck);
     compute_carry<<<gpNumBlock, block_size>>>(ci, gi, pi, gcj);
