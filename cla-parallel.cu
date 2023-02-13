@@ -364,7 +364,7 @@ void cla()
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
     compute_super_section_carry<<<ssNumBlock, block_size>>>(sscl, ssgl, sspl, ssscm);
-    compute_section_carry<<<scNumBlock, block_size>>>(sck, sgk, spk, sscm);
+    compute_section_carry<<<scNumBlock, block_size>>>(sck, sgk, spk, sscl);
     compute_group_carry<<<ggNumBlock, block_size>>>(gcj, ggj, gpj, sck);
     compute_carry<<<gpNumBlock, block_size>>>(ci, gi, pi, gcj);
     compute_sum<<<gpNumBlock, block_size>>>(sumi, bin1, bin2, ci);
