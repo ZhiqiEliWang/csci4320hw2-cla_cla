@@ -384,7 +384,7 @@ void compute_sum(int *sumi, int *bin1, int *bin2, int *ci)
 
 void cla()
 {
-  threadPerBlock = 1024;
+  int threadPerBlock = 1024;
   /***********************************************************************************************************/
   // ADAPT ALL THESE FUNCTUIONS TO BE SEPARATE CUDA KERNEL CALL
   // NOTE: Kernel calls are serialized by default per the CUDA kernel call scheduler
