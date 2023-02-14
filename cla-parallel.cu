@@ -99,7 +99,8 @@ void compute_gp(int* gi, int* pi, int* bin1, int* bin2)
 __global__
 void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj) 
 {
-    int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
+  int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
+  if (j < ngroups) { //avoid accessing beyond the end of the arrays
     int jstart = j * block_size; //jstart is the starting index of the group in gi and pi
 
     int sum = 0;
@@ -120,7 +121,7 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
         mult &= gi[jstart + i];
     }
     gpj[j] = mult;
-
+  }
 }
 
 /***********************************************************************************************************/
@@ -129,8 +130,9 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
 __global__
 void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
 {
-
-    int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
+  
+  int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
+  if (k < nsections) { //avoid accessing beyond the end of the arrays
     int kstart = k * block_size; //kstart is the starting index of the section in ggj and gpj
     
     int sum = 0;
@@ -151,6 +153,7 @@ void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
           mult &= sgk[kstart + i];
       }
       spk[k] = mult;
+  }
       
 
 }
@@ -162,6 +165,7 @@ __global__
 void compute_super_section_gp(int* sgk, int* spk, int* ssgl, int* sspl)
 {
     int l = threadIdx.x + blockIdx.x * blockDim.x;// l is the current super section number
+    if (l < nsupersections) { //avoid accessing beyond the end of the arrays
     int lstart = l*block_size;
     
     int sum = 0;
@@ -182,6 +186,7 @@ void compute_super_section_gp(int* sgk, int* spk, int* ssgl, int* sspl)
           mult &= ssgl[lstart + i];
       }
       sspl[l] = mult;
+    }
       
 }
 
@@ -192,6 +197,7 @@ __global__
 void compute_super_super_section_gp(int* ssgl, int* sspl, int* sssgm, int* ssspm)
 {
     int m = threadIdx.x + blockIdx.x * blockDim.x;// m is the current super super section number
+    if (m < nsupersupersections) { //avoid accessing beyond the end of the arrays
     int mstart = m*block_size;
     
     int sum = 0;
@@ -212,7 +218,7 @@ void compute_super_super_section_gp(int* ssgl, int* sspl, int* sssgm, int* ssspm
           mult &= sssgm[mstart + i];
       }
       ssspm[m] = mult;
-      
+    }
 }
 
 /***********************************************************************************************************/
@@ -245,16 +251,25 @@ void compute_super_section_carry(int *sscl, int *ssgl, int *sspl, int *ssscm)
 {
   int l = threadIdx.x + blockIdx.x * blockDim.x;// l is the current super section number
   int sscllast=0;
-  if(l%block_size == block_size-1)
-    {
-      sscllast = ssscm[l/block_size];
+  if (l < nsupersections) { //avoid accessing beyond the end of the arrays
+    for (int offset=0; offset<block_size; offset++){
+      if (l == 0)
+        {
+          sscllast = 0;
+        }
+      if(offset == 0)
+        {
+          sscllast = ssscm[l];
+        }
+      else if( offset != 0 )
+        {
+          // l*block_size + offset - 1 is the index of the previous section in the super section
+          sscllast = sscl[l*block_size + offset - 1];
+        }
+      
+        sscl[l*block_size + offset] = ssgl[l*block_size + offset] | (sspl[l*block_size + offset]&sscllast);
     }
-  else if( l != 0 )
-    {
-      sscllast = sscl[l-1];
-    }
-  
-  sscl[l] = ssgl[l] | (sspl[l]&sscllast);
+  }
 
 }
 
@@ -266,17 +281,24 @@ void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
 {
   int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
   int scklast=0;
-  if(k%block_size==block_size-1)
-    {
-      scklast = sscl[k/block_size];
+  if (k < nsections) { //avoid accessing beyond the end of the arrays
+    for (int offset=0; offset<block_size; offset++){
+      if (k == 0)
+        {
+          scklast = 0;
+        }
+      if(offset == 0)
+        {
+          scklast = sscl[k];
+        }
+      else if( offset != 0 )
+        {
+          scklast = sck[k*block_size + offset - 1];
+        }
+      
+        sck[k*block_size + offset] = sgk[k*block_size + offset] | (spk[k*block_size + offset]&scklast);
     }
-  else if( k != 0 )
-    {
-      scklast = sck[k-1];
-    }
-  
-  sck[k] = sgk[k] | (spk[k]&scklast);
-
+  }
 }
 
 
@@ -288,16 +310,24 @@ void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck)
 {
   int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
   int gcjlast=0;
-  if(j%block_size==block_size-1)
-    {
-      gcjlast = sck[j/block_size];
+  if (j < ngroups) { //avoid accessing beyond the end of the arrays
+    for (int offset=0; offset<block_size; offset++){
+      if (j == 0)
+        {
+          gcjlast = 0;
+        }
+      if(offset == 0)
+        {
+          gcjlast = sck[j];
+        }
+      else if( offset != 0 )
+        {
+          gcjlast = gcj[j*block_size + offset - 1];
+        }
+      
+        gcj[j*block_size + offset] = ggj[j*block_size + offset] | (gpj[j*block_size + offset]&gcjlast);
     }
-  else if( j != 0 )
-    {
-      gcjlast = gcj[j-1];
-    }
-  
-  gcj[j] = ggj[j] | (gpj[j]&gcjlast);
+  }
 
 }
 
@@ -307,18 +337,26 @@ void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck)
 __global__
 void compute_carry(int *ci, int *gi, int *pi, int *gcj)
 {
-  int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current carry number
+  int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current bit index for the carry
   int cilast=0;
-  if(i%block_size==block_size-1)
-    {
-      cilast = gcj[i/block_size];
+  if (i < nbits) { //avoid accessing beyond the end of the arrays
+    for (int offset=0; offset<block_size; offset++){
+      if (i == 0)
+        {
+          cilast = 0;
+        }
+      if(offset == 0)
+        {
+          cilast = gcj[i];
+        }
+      else if( offset != 0 )
+        {
+          cilast = ci[i*block_size + offset - 1];
+        }
+      
+        ci[i*block_size + offset] = gi[i*block_size + offset] | (pi[i*block_size + offset]&cilast);
     }
-  else if( i != 0 )
-    {
-      cilast = ci[i-1];
-    }
-  
-  ci[i] = gi[i] | (pi[i]&cilast);
+  }
 
 }
 
@@ -330,15 +368,17 @@ void compute_sum(int *sumi, int *bin1, int *bin2, int *ci)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current bit index for the sum
     int clast=0;
-    if(i==0)
-      {
-  clast = 0;
-      }
-    else
-      {
-  clast = ci[i-1];
-      }
-    sumi[i] = bin1[i] ^ bin2[i] ^ clast;
+    if (i < nbits) { //avoid accessing beyond the end of the arrays
+      if(i==0)
+        {
+        clast = 0;
+        }
+      else
+        {
+        clast = ci[i-1];
+        }
+      sumi[i] = bin1[i] ^ bin2[i] ^ clast;
+    }
 
 }
 
@@ -350,25 +390,26 @@ void cla()
   // NOTE: Make sure you set the right CUDA Block Size (e.g., threads per block) for different runs per 
   //       assignment description.
   /***********************************************************************************************************/
-    int gpNumBlock = (bits + block_size - 1) / block_size;
-    compute_gp<<<gpNumBlock, block_size>>>(gi, pi, bin1, bin2);
-    int ggNumBlock = (ngroups + block_size - 1) / block_size;
-    compute_group_gp<<<ggNumBlock, block_size>>>(ggj, gpj, gi, pi);
-    int scNumBlock = (nsections + block_size - 1) / block_size;
-    compute_section_gp<<<scNumBlock, block_size>>>(sgk, spk, ggj, gpj);
-    int ssNumBlock = (nsupersections + block_size - 1) / block_size;
-    compute_super_section_gp<<<ssNumBlock, block_size>>>(ssgl, sspl, sgk, spk);
-    int sssNumBlock = (nsupersupersections + block_size - 1) / block_size;
-    compute_super_super_section_gp<<<sssNumBlock, block_size>>>(sssgm, ssspm, ssgl, sspl);
+    int gpNumBlock = (bits + threadPerBlock - 1) / threadPerBlock;
+    compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
+    int ggNumBlock = (ngroups + threadPerBlock - 1) / threadPerBlock;
+    compute_group_gp<<<ggNumBlock, threadPerBlock>>>(ggj, gpj, gi, pi);
+    int scNumBlock = (nsections + threadPerBlock - 1) / threadPerBlock;
+    compute_section_gp<<<scNumBlock, threadPerBlock>>>(sgk, spk, ggj, gpj);
+    int ssNumBlock = (nsupersections + threadPerBlock - 1) / threadPerBlock;
+    compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(ssgl, sspl, sgk, spk);
+    int sssNumBlock = (nsupersupersections + threadPerBlock - 1) / threadPerBlock;
+    compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(sssgm, ssspm, ssgl, sspl);
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
-    compute_super_section_carry<<<ssNumBlock, block_size>>>(sscl, ssgl, sspl, ssscm);
-    compute_section_carry<<<scNumBlock, block_size>>>(sck, sgk, spk, sscl);
-    compute_group_carry<<<ggNumBlock, block_size>>>(gcj, ggj, gpj, sck);
-    compute_carry<<<gpNumBlock, block_size>>>(ci, gi, pi, gcj);
-    compute_sum<<<gpNumBlock, block_size>>>(sumi, bin1, bin2, ci);
+    compute_super_section_carry<<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
+    compute_section_carry<<<scNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
+    compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
+    compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
+    compute_sum<<<gpNumBlock, threadPerBlock>>>(sumi, bin1, bin2, ci);
 
+    cudaDeviceSynchronize(); // This is the right place to insert the CUDA synchronization
   /***********************************************************************************************************/
   // INSERT RIGHT CUDA SYNCHRONIZATION AT END!
   /***********************************************************************************************************/
