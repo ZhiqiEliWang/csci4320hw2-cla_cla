@@ -339,7 +339,7 @@ void compute_carry(int *ci, int *gi, int *pi, int *gcj)
 {
   int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current bit index for the carry
   int cilast=0;
-  if (i < nbits) { //avoid accessing beyond the end of the arrays
+  if (i < bits) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
       if (i == 0)
         {
@@ -368,7 +368,7 @@ void compute_sum(int *sumi, int *bin1, int *bin2, int *ci)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current bit index for the sum
     int clast=0;
-    if (i < nbits) { //avoid accessing beyond the end of the arrays
+    if (i < bits) { //avoid accessing beyond the end of the arrays
       if(i==0)
         {
         clast = 0;
@@ -384,6 +384,7 @@ void compute_sum(int *sumi, int *bin1, int *bin2, int *ci)
 
 void cla()
 {
+  threadPerBlock = 1024;
   /***********************************************************************************************************/
   // ADAPT ALL THESE FUNCTUIONS TO BE SEPARATE CUDA KERNEL CALL
   // NOTE: Kernel calls are serialized by default per the CUDA kernel call scheduler
