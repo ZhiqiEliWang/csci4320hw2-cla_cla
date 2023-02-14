@@ -253,11 +253,11 @@ void compute_super_section_carry(int *sscl, int *ssgl, int *sspl, int *ssscm)
   int sscllast=0;
   if (l < nsupersections) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
-      if (l == 0)
+      if (l == 0 && offset == 0)
         {
           sscllast = 0;
         }
-      if(offset == 0)
+      else if(offset == 0)
         {
           sscllast = ssscm[l];
         }
@@ -283,11 +283,11 @@ void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
   int scklast=0;
   if (k < nsections) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
-      if (k == 0)
+      if (k == 0 && offset == 0)
         {
           scklast = 0;
         }
-      if(offset == 0)
+      else if(offset == 0)
         {
           scklast = sscl[k];
         }
@@ -312,11 +312,11 @@ void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck)
   int gcjlast=0;
   if (j < ngroups) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
-      if (j == 0)
+      if (j == 0 && offset == 0)
         {
           gcjlast = 0;
         }
-      if(offset == 0)
+      else if(offset == 0)
         {
           gcjlast = sck[j];
         }
@@ -341,11 +341,11 @@ void compute_carry(int *ci, int *gi, int *pi, int *gcj)
   int cilast=0;
   if (i < bits) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
-      if (i == 0)
+      if (i == 0 && offset == 0)
         {
           cilast = 0;
         }
-      if(offset == 0)
+      else if(offset == 0)
         {
           cilast = gcj[i];
         }
