@@ -14,3 +14,4 @@ export https_proxy=$http_proxy
 
 github token: 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
 
+git clone https://github.com/ZhiqiEliWang/csci4320hw2.git

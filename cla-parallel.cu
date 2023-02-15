@@ -120,7 +120,7 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
     int mult = pi[jstart];
     for(int i = 1; i < block_size; i++)
     {
-        mult &= gi[jstart + i];
+        mult &= pi[jstart + i];
     }
     gpj[j] = mult;
   }
@@ -152,7 +152,7 @@ void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
       int mult = spk[kstart];
       for(int i = 1; i < block_size; i++)
       {
-          mult &= sgk[kstart + i];
+          mult &= gpj[kstart + i];
       }
       spk[k] = mult;
   }
@@ -173,19 +173,19 @@ void compute_super_section_gp(int* sgk, int* spk, int* ssgl, int* sspl)
     int sum = 0;
     for(int i = 0; i < block_size; i++)
       {
-          int mult = ssgl[lstart + i];
+          int mult = sgk[lstart + i];
           for(int ii = block_size-1; ii > i; ii--)
           {
-              mult &= sspl[lstart + ii];
+              mult &= spk[lstart + ii];
           }
           sum |= mult;
       }
       ssgl[l] = sum;
     
-      int mult = sspl[lstart];
+      int mult = spk[lstart];
       for(int i = 1; i < block_size; i++)
       {
-          mult &= ssgl[lstart + i];
+          mult &= spk[lstart + i];
       }
       sspl[l] = mult;
     }
@@ -205,19 +205,19 @@ void compute_super_super_section_gp(int* ssgl, int* sspl, int* sssgm, int* ssspm
     int sum = 0;
     for(int i = 0; i < block_size; i++)
       {
-          int mult = sssgm[mstart + i];
+          int mult = ssgl[mstart + i];
           for(int ii = block_size-1; ii > i; ii--)
           {
-              mult &= ssspm[mstart + ii];
+              mult &= sspl[mstart + ii];
           }
           sum |= mult;
       }
       sssgm[m] = sum;
     
-      int mult = ssspm[mstart];
+      int mult = sspl[mstart];
       for(int i = 1; i < block_size; i++)
       {
-          mult &= sssgm[mstart + i];
+          mult &= sspl[mstart + i];
       }
       ssspm[m] = mult;
     }
