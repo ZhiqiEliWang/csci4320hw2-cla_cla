@@ -404,7 +404,7 @@ void cla()
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
-    compute_super_section_carry<·<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
+    compute_super_section_carry<<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
     compute_section_carry<<<scNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
     compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
     compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
