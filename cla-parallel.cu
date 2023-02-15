@@ -5,7 +5,7 @@
 /*********************************************************************/
 
 #include "main.h"
-#include "assert.h"
+#include <assert.h>
 
 //Touch these defines
 #define input_size 8388608 // hex digits 
