@@ -110,6 +110,7 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
         for(int ii = block_size-1; ii > i; ii--)
         {
             mult &= pi[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
+            assert(jstart + ii < bits);
         }
         sum |= mult; //sum up each of these things with an or
     }
