@@ -143,14 +143,13 @@ void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
           int mult = ggj[kstart + i];
           for(int ii = block_size-1; ii > i; ii--)
           {
-              assert (kstart + ii < ngroups);
               mult &= gpj[kstart + ii];
           }
           sum |= mult;
       }
       sgk[k] = sum;
     
-      int mult = spk[kstart];
+      int mult = ggj[kstart];
       for(int i = 1; i < block_size; i++)
       {
           mult &= gpj[kstart + i];
