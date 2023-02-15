@@ -109,13 +109,13 @@ void compute_group_gp(int* gi, int* pi, int* ggj, int* gpj)
         int mult = gi[jstart + i]; //grabs the g_i term for the multiplication
         for(int ii = block_size-1; ii > i; ii--)
         {
-            mult &= gi[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
+            mult &= pi[jstart + ii]; //grabs the p_i terms and multiplies it with the previously multiplied stuff (or the g_i term if first round)
         }
         sum |= mult; //sum up each of these things with an or
     }
     ggj[j] = sum;
 
-    int mult = gi[jstart];
+    int mult = pi[jstart];
     for(int i = 1; i < block_size; i++)
     {
         mult &= gi[jstart + i];
@@ -138,7 +138,7 @@ void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
     int sum = 0;
     for(int i = 0; i < block_size; i++)
       {
-          int mult = sgk[kstart + k];
+          int mult = spk[kstart + k];
           for(int ii = block_size-1; ii > i; ii--)
           {
               mult &= sgk[kstart + ii];
@@ -147,7 +147,7 @@ void compute_section_gp(int* ggj, int* gpj, int* sgk, int* spk)
       }
       sgk[k] = sum;
     
-      int mult = sgk[kstart];
+      int mult = spk[kstart];
       for(int i = 1; i < block_size; i++)
       {
           mult &= sgk[kstart + i];
@@ -174,13 +174,13 @@ void compute_super_section_gp(int* sgk, int* spk, int* ssgl, int* sspl)
           int mult = ssgl[lstart + i];
           for(int ii = block_size-1; ii > i; ii--)
           {
-              mult &= ssgl[lstart + ii];
+              mult &= sspl[lstart + ii];
           }
           sum |= mult;
       }
       ssgl[l] = sum;
     
-      int mult = ssgl[lstart];
+      int mult = sspl[lstart];
       for(int i = 1; i < block_size; i++)
       {
           mult &= ssgl[lstart + i];
@@ -206,13 +206,13 @@ void compute_super_super_section_gp(int* ssgl, int* sspl, int* sssgm, int* ssspm
           int mult = sssgm[mstart + i];
           for(int ii = block_size-1; ii > i; ii--)
           {
-              mult &= sssgm[mstart + ii];
+              mult &= ssspm[mstart + ii];
           }
           sum |= mult;
       }
       sssgm[m] = sum;
     
-      int mult = sssgm[mstart];
+      int mult = ssspm[mstart];
       for(int i = 1; i < block_size; i++)
       {
           mult &= sssgm[mstart + i];
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
 
   // ----------------- BEGIN: cudaMallocManaged -----------------
 
-    cudaMallocManaged(&gi, 1 * sizeof(int));
+    cudaMallocManaged(&gi, bits * sizeof(int));
     cudaMallocManaged(&pi, bits * sizeof(int));
     cudaMallocManaged(&ci, bits * sizeof(int));
 
