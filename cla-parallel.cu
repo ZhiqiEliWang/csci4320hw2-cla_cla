@@ -396,13 +396,13 @@ void cla()
     int gpNumBlock = (bits + threadPerBlock - 1) / threadPerBlock;
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
     int ggNumBlock = (ngroups + threadPerBlock - 1) / threadPerBlock;
-    compute_group_gp<<<ggNumBlock, threadPerBlock>>>(ggj, gpj, gi, pi);
+    compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggi, gpj);
     int scNumBlock = (nsections + threadPerBlock - 1) / threadPerBlock;
-    compute_section_gp<<<scNumBlock, threadPerBlock>>>(sgk, spk, ggj, gpj);
+    compute_section_gp<<<scNumBlock, threadPerBlock>>>(ggj, gpj, sgk, spk);
     int ssNumBlock = (nsupersections + threadPerBlock - 1) / threadPerBlock;
-    compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(ssgl, sspl, sgk, spk);
+    compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(sgk, spk, ssgl, sspl);
     int sssNumBlock = (nsupersupersections + threadPerBlock - 1) / threadPerBlock;
-    compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(sssgm, ssspm, ssgl, sspl);
+    compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(ssgl, sspl, sssgm, ssspm);
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
