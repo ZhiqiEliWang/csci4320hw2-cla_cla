@@ -411,6 +411,10 @@ void cla()
     compute_sum<<<gpNumBlock, threadPerBlock>>>(sumi, bin1, bin2, ci);
 
     cudaDeviceSynchronize(); // This is the right place to insert the CUDA synchronization
+
+
+
+    printf("\n\nsscl[0] = %d\nbin1[0] = %d\nbin2[0] = %d\n" ,sscl[i]);
   /***********************************************************************************************************/
   // INSERT RIGHT CUDA SYNCHRONIZATION AT END!
   /***********************************************************************************************************/
