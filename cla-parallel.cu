@@ -404,7 +404,7 @@ void cla()
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
-    compute_super_section_carry<<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
+    compute_super_section_carry<·<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
     compute_section_carry<<<scNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
     compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
     compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
@@ -414,7 +414,7 @@ void cla()
 
 
 
-    printf("\n\nsscl[0] = %d\nbin1[0] = %d\nbin2[0] = %d\n" ,sscl[i]);
+    printf("\n\nsscl[0] = %d\nbin1[0] = %d\nbin2[0] = %d\n" ,sscl[0], bin1[0], bin2[0]);
   /***********************************************************************************************************/
   // INSERT RIGHT CUDA SYNCHRONIZATION AT END!
   /***********************************************************************************************************/
@@ -441,7 +441,7 @@ void check_cla_rca()
 	  printf("Check: Found sumrca[%d] = %d, not equal to sumi[%d] = %d - stopping check here!\n",
 		 i, sumrca[i], i, sumi[i]);
 	  printf("bin1[%d] = %d, bin2[%d]=%d, gi[%d]=%d, pi[%d]=%d, ci[%d]=%d, ci[%d]=%d\n",
-		 i, bin1[i], i, bin2[i], i, gi[i], i, pi[i], i, ci[i], i-1, ci[i-1]);
+		 i, bin1[i], i, bin2[i] i, gi[i], i, pi[i], i, ci[i], i-1, ci[i-1]);
 	  return;
 	}
     }
