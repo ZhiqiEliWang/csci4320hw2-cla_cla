@@ -396,7 +396,7 @@ void cla()
     int gpNumBlock = (bits + threadPerBlock - 1) / threadPerBlock;
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
     int ggNumBlock = (ngroups + threadPerBlock - 1) / threadPerBlock;
-    compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggi, gpj);
+    compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggj, gpj);
     int scNumBlock = (nsections + threadPerBlock - 1) / threadPerBlock;
     compute_section_gp<<<scNumBlock, threadPerBlock>>>(ggj, gpj, sgk, spk);
     int ssNumBlock = (nsupersections + threadPerBlock - 1) / threadPerBlock;
