@@ -395,32 +395,21 @@ void cla()
   /***********************************************************************************************************/
     int gpNumBlock = bits / threadPerBlock + 1; // +1 is for the case when bits is not a multiple of threadPerBlock
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
-    printf("compute_gp done\n");
     int ggNumBlock = ngroups / threadPerBlock;
     compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggj, gpj);
-    printf("compute_group_gp done\n");
     int scNumBlock = nsections / threadPerBlock;
     compute_section_gp<<<scNumBlock, threadPerBlock>>>(ggj, gpj, sgk, spk);
-    printf("compute_section_gp done\n");
     int ssNumBlock = nsupersections / threadPerBlock;
     compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(sgk, spk, ssgl, sspl);
-    printf("compute_super_section_gp done\n");
     int sssNumBlock = nsupersupersections / threadPerBlock;
     compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(ssgl, sspl, sssgm, ssspm);
-    printf("compute_super_super_section_gp done\n");
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
-    printf("compute_super_super_section_carry done\n");
     compute_super_section_carry<<<sssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
-    printf("compute_super_section_carry done\n");
     compute_section_carry<<<ssNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
-    printf("compute_section_carry done\n");
     compute_group_carry<<<scNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
-    printf("compute_group_carry done\n");
     compute_carry<<<ggNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
-    printf("compute_carry done\n");
     compute_sum<<<gpNumBlock, threadPerBlock>>>(sumi, bin1, bin2, ci);
-    printf("compute_sum done\n");
 
     cudaDeviceSynchronize(); // This is the right place to insert the CUDA synchronization
 
