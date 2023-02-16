@@ -393,7 +393,7 @@ void cla()
   // NOTE: Make sure you set the right CUDA Block Size (e.g., threads per block) for different runs per 
   //       assignment description.
   /***********************************************************************************************************/
-    int gpNumBlock = bits / threadPerBlock;
+    int gpNumBlock = bits / threadPerBlock + 1; // +1 is for the case when bits is not a multiple of threadPerBlock
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
     printf("compute_gp done\n");
     int ggNumBlock = ngroups / threadPerBlock;
