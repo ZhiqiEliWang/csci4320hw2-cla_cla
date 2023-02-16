@@ -410,12 +410,17 @@ void cla()
     printf("compute_super_super_section_gp done\n");
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
-
+    printf("compute_super_super_section_carry done\n");
     compute_super_section_carry<<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
+    printf("compute_super_section_carry done\n");
     compute_section_carry<<<scNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
+    printf("compute_section_carry done\n");
     compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
+    printf("compute_group_carry done\n");
     compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
+    printf("compute_carry done\n");
     compute_sum<<<gpNumBlock, threadPerBlock>>>(sumi, bin1, bin2, ci);
+    printf("compute_sum done\n");
 
     cudaDeviceSynchronize(); // This is the right place to insert the CUDA synchronization
 
