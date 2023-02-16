@@ -253,7 +253,7 @@ void compute_super_section_carry(int *sscl, int *ssgl, int *sspl, int *ssscm)
 {
   int l = threadIdx.x + blockIdx.x * blockDim.x;// l is the current super section number
   int sscllast=0;
-  if (l < nsupersections) { //avoid accessing beyond the end of the arrays
+  if (l < nsupersupersections) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
       if (l == 0 && offset == 0)
         {
@@ -283,7 +283,7 @@ void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
 {
   int k = threadIdx.x + blockIdx.x * blockDim.x;// k is the current section number
   int scklast=0;
-  if (k < nsections) { //avoid accessing beyond the end of the arrays
+  if (k < nsupersections) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
       if (k == 0 && offset == 0)
         {
@@ -308,11 +308,11 @@ void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
 // ADAPT AS CUDA KERNEL 
 /***********************************************************************************************************/
 __global__
-void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck)
+void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck) 
 {
   int j = threadIdx.x + blockIdx.x * blockDim.x;// j is the current group number
   int gcjlast=0;
-  if (j < ngroups) { //avoid accessing beyond the end of the arrays
+  if (j < nsections) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
       if (j == 0 && offset == 0)
         {
@@ -415,7 +415,7 @@ void cla()
     printf("compute_super_section_carry done\n");
     compute_section_carry<<<ssNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
     printf("compute_section_carry done\n");
-    compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
+    compute_group_carry<<<scNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
     printf("compute_group_carry done\n");
     compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
     printf("compute_carry done\n");
