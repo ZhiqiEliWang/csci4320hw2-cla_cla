@@ -393,19 +393,19 @@ void cla()
   // NOTE: Make sure you set the right CUDA Block Size (e.g., threads per block) for different runs per 
   //       assignment description.
   /***********************************************************************************************************/
-    int gpNumBlock = (bits + threadPerBlock - 1) / threadPerBlock;
+    int gpNumBlock = bits / threadPerBlock;
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
     printf("compute_gp done\n");
-    int ggNumBlock = (ngroups + threadPerBlock - 1) / threadPerBlock;
+    int ggNumBlock = ngroups / threadPerBlock;
     compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggj, gpj);
     printf("compute_group_gp done\n");
-    int scNumBlock = (nsections + threadPerBlock - 1) / threadPerBlock;
+    int scNumBlock = nsections / threadPerBlock;
     compute_section_gp<<<scNumBlock, threadPerBlock>>>(ggj, gpj, sgk, spk);
     printf("compute_section_gp done\n");
-    int ssNumBlock = (nsupersections + threadPerBlock - 1) / threadPerBlock;
+    int ssNumBlock = nsupersections / threadPerBlock;
     compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(sgk, spk, ssgl, sspl);
     printf("compute_super_section_gp done\n");
-    int sssNumBlock = (nsupersupersections + threadPerBlock - 1) / threadPerBlock;
+    int sssNumBlock = nsupersupersections / threadPerBlock;
     compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(ssgl, sspl, sssgm, ssspm);
     printf("compute_super_super_section_gp done\n");
 
