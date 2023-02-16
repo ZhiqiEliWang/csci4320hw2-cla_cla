@@ -395,19 +395,19 @@ void cla()
   /***********************************************************************************************************/
     int gpNumBlock = (bits + threadPerBlock - 1) / threadPerBlock;
     compute_gp<<<gpNumBlock, threadPerBlock>>>(gi, pi, bin1, bin2);
-    print("compute_gp done\n");
+    printf("compute_gp done\n");
     int ggNumBlock = (ngroups + threadPerBlock - 1) / threadPerBlock;
     compute_group_gp<<<ggNumBlock, threadPerBlock>>>(gi, pi, ggj, gpj);
-    print("compute_group_gp done\n");
+    printf("compute_group_gp done\n");
     int scNumBlock = (nsections + threadPerBlock - 1) / threadPerBlock;
     compute_section_gp<<<scNumBlock, threadPerBlock>>>(ggj, gpj, sgk, spk);
-    print("compute_section_gp done\n");
+    printf("compute_section_gp done\n");
     int ssNumBlock = (nsupersections + threadPerBlock - 1) / threadPerBlock;
     compute_super_section_gp<<<ssNumBlock, threadPerBlock>>>(sgk, spk, ssgl, sspl);
-    print("compute_super_section_gp done\n");
+    printf("compute_super_section_gp done\n");
     int sssNumBlock = (nsupersupersections + threadPerBlock - 1) / threadPerBlock;
     compute_super_super_section_gp<<<sssNumBlock, threadPerBlock>>>(ssgl, sspl, sssgm, ssspm);
-    print("compute_super_super_section_gp done\n");
+    printf("compute_super_super_section_gp done\n");
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
 
