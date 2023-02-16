@@ -341,7 +341,7 @@ void compute_carry(int *ci, int *gi, int *pi, int *gcj)
 {
   int i = threadIdx.x + blockIdx.x * blockDim.x;// i is the current bit index for the carry
   int cilast=0;
-  if (i < bits) { //avoid accessing beyond the end of the arrays
+  if (i < ngroups) { //avoid accessing beyond the end of the arrays
     for (int offset=0; offset<block_size; offset++){
       if (i == 0 && offset == 0)
         {
@@ -417,7 +417,7 @@ void cla()
     printf("compute_section_carry done\n");
     compute_group_carry<<<scNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
     printf("compute_group_carry done\n");
-    compute_carry<<<gpNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
+    compute_carry<<<ggNumBlock, threadPerBlock>>>(ci, gi, pi, gcj);
     printf("compute_carry done\n");
     compute_sum<<<gpNumBlock, threadPerBlock>>>(sumi, bin1, bin2, ci);
     printf("compute_sum done\n");
