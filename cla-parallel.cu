@@ -261,7 +261,7 @@ void compute_super_section_carry(int *sscl, int *ssgl, int *sspl, int *ssscm)
         }
       else if(offset == 0)
         {
-          sscllast = ssscm[l];
+          sscllast = ssscm[l-1];
         }
       else if( offset != 0 )
         {
@@ -291,7 +291,7 @@ void compute_section_carry(int *sck, int *sgk, int *spk, int *sscl)
         }
       else if(offset == 0)
         {
-          scklast = sscl[k];
+          scklast = sscl[k-1];
         }
       else if( offset != 0 )
         {
@@ -320,7 +320,7 @@ void compute_group_carry(int *gcj, int *ggj, int *gpj, int *sck)
         }
       else if(offset == 0)
         {
-          gcjlast = sck[j];
+          gcjlast = sck[j-1];
         }
       else if( offset != 0 )
         {
@@ -349,7 +349,7 @@ void compute_carry(int *ci, int *gi, int *pi, int *gcj)
         }
       else if(offset == 0)
         {
-          cilast = gcj[i];
+          cilast = gcj[i-1];
         }
       else if( offset != 0 )
         {
@@ -424,9 +424,6 @@ void cla()
 
     cudaDeviceSynchronize(); // This is the right place to insert the CUDA synchronization
 
-
-
-    printf("\n\nsscl[0] = %d\nbin1[0] = %d\nbin2[0] = %d\n" ,sscl[0], bin1[0], bin2[0]);
   /***********************************************************************************************************/
   // INSERT RIGHT CUDA SYNCHRONIZATION AT END!
   /***********************************************************************************************************/
