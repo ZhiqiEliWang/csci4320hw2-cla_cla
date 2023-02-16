@@ -411,9 +411,9 @@ void cla()
 
     compute_super_super_section_carry<<<1, 1>>>(ssscm, sssgm, ssspm); // This function is not going to be parallelized
     printf("compute_super_super_section_carry done\n");
-    compute_super_section_carry<<<ssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
+    compute_super_section_carry<<<sssNumBlock, threadPerBlock>>>(sscl, ssgl, sspl, ssscm);
     printf("compute_super_section_carry done\n");
-    compute_section_carry<<<scNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
+    compute_section_carry<<<ssNumBlock, threadPerBlock>>>(sck, sgk, spk, sscl);
     printf("compute_section_carry done\n");
     compute_group_carry<<<ggNumBlock, threadPerBlock>>>(gcj, ggj, gpj, sck);
     printf("compute_group_carry done\n");
