@@ -1,0 +1,30 @@
+
+thread: 32
+CLA Completed in 78795402 cycles
+RCA Completed in 226816092 cycles
+
+thread: 64
+CLA Completed in 67399818 cycles
+RCA Completed in 233531768 cycles
+
+thread: 128
+CLA Completed in 67807188 cycles
+RCA Completed in 232415664 cycles
+
+thread: 256
+CLA Completed in 77141881 cycles
+RCA Completed in 227556736 cycles
+
+thread: 512
+CLA Completed in 71873059 cycles
+RCA Completed in 225999606 cycles
+
+thread = 1024
+CLA Completed in 46014563 cycles
+RCA Completed in 235561807 cycles
+
+cla-serial vs rca:
+CLA Completed in 2745347322 cycles
+RCA Completed in 217716686 cycles
+
+with o3 flag enabled: RCA completed in 33842263 cycles

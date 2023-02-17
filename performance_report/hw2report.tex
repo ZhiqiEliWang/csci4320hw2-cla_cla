@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[paper=letterpaper,margin=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{newtxtext, newtxmath}
+\usepackage{enumitem}
+\usepackage{titling}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage[colorlinks=true]{hyperref}
+
+
+\title{\vspace{-3cm}CSCI4320 HW2 Performance Report}
+\author{\vspace{-1cm}Zhiqi Wang}
+\date{\today}
+
+%----------- to embed a line of code: use \texttt{./programName}.----------
+
+\begin{document}
+
+\maketitle
+
+\section{Implementation of CLA Adder Functions as CUDA Kernel Calls}
+
+There are few things I've modified to make this cla adder parallel;
+
+\begin{enumerate}
+
+\item I allocated the memory for all the input, generate, propagate, and carry arrays on the device using 
+\texttt{cudaMallocManaged}. This allows the arrays to be accessed by both the host and the device.
+
+\item For the first function calculation for generate and propagate \texttt{compute\_gp}, I removed a 
+layer of for loop and let each thread handle one element of the array. This is done by setting the 
+index at \texttt{threadIdx.x + blockIdx.x * blockDim.x}. Then I just need to launch this kernal with 
+\texttt{bits / threadPerBlock + 1} blocks and \texttt{threadPerBlock} threads per block.
+I also did the same modification for \texttt{compute\_sum}.
+
+\item  For all other calculation for generate and propagate,
+    I removed a layer of for loop and let each thread handle one cla block of work. This is done 
+    by the same indexing method. I also didn't use the \texttt{grab\_slice} as cla-serial did. 
+    Instead, I used the fact that each \texttt{slice} is corresponding to a block of work.
+    So instead of having those slice grabbed and allocated, I just used pointer arithmetic to
+    access the original array.
+
+\item For compute carrys, the carry for super super section is not parallelizable since we don't have 
+a higer level carry to split the work. So I just let one thread to handle this. For the rest of the
+carry, I reduced the for loop to each carry to a for loop that handles one block of work since the 
+dependency of carry within a cla-block.
+
+
+
+\end{enumerate}
+\section{Performance Comparison}
+Here is the performance comparison between serial CLA adder and serial rca. 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lr@{}}
+    \toprule
+    Method & Cycles to Complete \\
+    \midrule
+    CLA & 2745347322 \\
+    RCA & 217716686 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Comparison of CLA and RCA Methods}
+    \end{table}
+    
+
+I also measured the number of cycles for the CUDA CLA adder function in my cla-parallel program for different block sizes as noted below: 32, 64, 128, 256, 512, and 1024. The results are shown in Table 2.
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ccc}
+    \toprule
+    Thread & CLA Cycles & RCA Cycles \\
+    \midrule
+    32 & 78795402 & 226816092 \\
+    64 & 67399818 & 233531768 \\
+    128 & 67807188 & 232415664 \\
+    256 & 77141881 & 227556736 \\
+    512 & 71873059 & 225999606 \\
+    1024 & 46014563 & 235561807 \\
+    \bottomrule
+    \end{tabular}
+    \caption{Cycles consumed by CLA and RCA in serial with different thread configurations}
+    \label{tab:serial}
+\end{table}
+
+Based on the result above(Table 2) the best block size is 1024. There could be two possible reasons for it: 
+
+First, shared memory is accessable within on cuda block but not across blocks. Having a larger block size 
+means that we have more threads within a block and more threads can access the shared memory at the same time. 
+This could reduce the number of memory access and increase the performance.
+
+Second, there could be overhead caused by launching more cuda blocks.
+
+\section{Speedup Comparison}
+Now, we are going to compute the speedup for using CUDA CLA with serial CLA and serial RCA. 
+The speedup of CUDA CLA to serial CLA is $2745347322 / 46014563 = 59.6$. 
+The speedup of CUDA CLA to serial RCA is $217716686 / 46014563 = 4.7$.
+
+The speedup of UDA cla 
+
+\section{Conclusion}
+
+[Insert your concluding remarks here.]
+
+\end{document}
