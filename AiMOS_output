@@ -28,3 +28,27 @@ CLA Completed in 2745347322 cycles
 RCA Completed in 217716686 cycles
 
 with o3 flag enabled: RCA completed in 33842263 cycles
+
+
+
+AiMOS.txt  a.out  assignment2.pdf  cla-parallel  cla-parallel.cu  cla.pdf  cla-serial.c  clockcycle.h  main.h  Makefile
+[PCPCwnww@dcs219 csci4320hw2]$ ./cla-serial.c
+-bash: ./cla-serial.c: Permission denied
+[PCPCwnww@dcs219 csci4320hw2]$ gcc cla-serial.c cla-serial
+gcc: error: cla-serial: No such file or directory
+[PCPCwnww@dcs219 csci4320hw2]$ gcc cla-serial.c -o  cla-serial
+[PCPCwnww@dcs219 csci4320hw2]$ ls
+AiMOS.txt  a.out  assignment2.pdf  cla-parallel  cla-parallel.cu  cla.pdf  cla-serial  cla-serial.c  clockcycle.h  main.h  Makefile
+[PCPCwnww@dcs219 csci4320hw2]$ rm a.out
+[PCPCwnww@dcs219 csci4320hw2]$ ls
+AiMOS.txt  assignment2.pdf  cla-parallel  cla-parallel.cu  cla.pdf  cla-serial  cla-serial.c  clockcycle.h  main.h  Makefile
+[PCPCwnww@dcs219 csci4320hw2]$ ./cla-serial
+CLA Completed in 2744122197 cycles
+RCA Completed in 235428518 cycles
+Check Complete: CLA and RCA are equal
+
+[PCPCwnww@dcs219 csci4320hw2]$ gcc -O3 cla-serial.c -o  cla-serial
+[PCPCwnww@dcs219 csci4320hw2]$ ./cla-serial
+CLA Completed in 323309349 cycles
+RCA Completed in 32922264 cycles
+Check Complete: CLA and RCA are equal

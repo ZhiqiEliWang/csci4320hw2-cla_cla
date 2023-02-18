@@ -100,12 +100,13 @@ Second, there could be overhead caused by launching more cuda blocks.
 \section{Speedup Comparison}
 Now, we are going to compute the speedup for using CUDA CLA with serial CLA and serial RCA. 
 The speedup of CUDA CLA to serial CLA is $2745347322 / 46014563 = 59.6$. 
-The speedup of CUDA CLA to serial RCA is $217716686 / 46014563 = 4.7$.
+The speedup of CUDA CLA to serial  RCA is $217716686 / 46014563 = 4.7$.
 
-The speedup of UDA cla 
+I abserve that the speedup of CUDA CLA to serial CLA is much larger than the speedup of CUDA CLA to serial RCA.
+And it seems like serial RCA is faster than serial CLA in this case. CUDA CLA is 59.6 times faster than serial 
+CLA. I think this is because we didn't implement CLA in hardware level, meanwhile RCA is just a simple adder in
+serial. Since this version of CLA is not parallel, it is not as fast as RCA. And we can't enjoy the benefit of it.
 
-\section{Conclusion}
 
-[Insert your concluding remarks here.]
 
 \end{document}

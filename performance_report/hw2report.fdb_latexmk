@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1676595512 "/Users/eliwang2332/Documents/GitHub/csci4320hw2/performance_report/hw2report.tex" "hw2report.pdf" "hw2report" 1676595512
-  "/Users/eliwang2332/Documents/GitHub/csci4320hw2/performance_report/hw2report.tex" 1676595511 4117 95f9e9006664cb541740db6aa3f32fea ""
+["pdflatex"] 1676658368 "/Users/eliwang2332/Documents/GitHub/csci4320hw2/performance_report/hw2report.tex" "hw2report.pdf" "hw2report" 1676658369
+  "/Users/eliwang2332/Documents/GitHub/csci4320hw2/performance_report/hw2report.tex" 1676658368 4485 9ae9e314b58000a72ec2f0086fc5bf32 ""
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map" 1676215121 170686 bbb557a3e7289c02ff2240d99167da11 ""
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/data/miktex/data/le/pdftex/pdflatex.fmt" 1673552537 10799346 bfd85d468ed21d49f423573b77d78700 ""
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/install/fonts/enc/dvips/newtx/ntx-ot1-tlf.enc" 1666276595 2083 60e36f8eac802fcaf19eabe2633b406e ""
@@ -132,9 +132,9 @@
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/install/tex/latex/url/url.sty" 1666275769 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xkeyval/xkeyval.sty" 1666275769 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
   "/Users/eliwang2332/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xstring/xstring.sty" 1666276597 123 a302f2c651a95033260db60e51527ae8 ""
-  "hw2report.aux" 1676595512 1498 e78eb9df806c64b7e0f11af9c3fcd751 "pdflatex"
-  "hw2report.out" 1676595512 742 4a0add7a401bc3585a1d7af9a051314d "pdflatex"
-  "hw2report.tex" 1676595511 4117 95f9e9006664cb541740db6aa3f32fea ""
+  "hw2report.aux" 1676658369 1391 cdc7b72b51bee7c2e7460d33450096d1 "pdflatex"
+  "hw2report.out" 1676658369 649 3d04e1d726cd79468c4240afe7ec532c "pdflatex"
+  "hw2report.tex" 1676658368 4485 9ae9e314b58000a72ec2f0086fc5bf32 ""
   (generated)
   "hw2report.aux"
   "hw2report.log"
